@@ -8,46 +8,8 @@ metadata:
     description:
       "${NAME} build pod template pre-configured to use a jenkins slave in the
       same project/namespace"
-objects:
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      labels:
-        build: "${NAME}"
-      name: "${NAME}"
-  - apiVersion: v1
-    kind: BuildConfig
-    metadata:
-      labels:
-        build: "${NAME}"
-        type: image
-      name: "${NAME}"
-    spec:
-      nodeSelector:
-      output:
-        to:
-          kind: ImageStreamTag
-          name: "${NAME}:${SLAVE_IMAGE_TAG}"
-      postCommit: {}
-      resources: {}
-      runPolicy: Serial
-      source:
-        contextDir: "${SOURCE_CONTEXT_DIR}"
-        git:
-          ref: "${SOURCE_REPOSITORY_REF}"
-          uri: "${SOURCE_REPOSITORY_URL}"
-        type: Git
-      strategy:
-        dockerStrategy:
-          dockerfilePath: "${DOCKERFILE_PATH}"
-          from:
-            kind: DockerImage
-            name: "${BUILDER_IMAGE_NAME}"
-            imagePullPolicy: Always
-        type: Docker
-      triggers:
-        - type: ConfigChange
-        - type: ImageChange
+labels:
+  template: build-pod-template
 parameters:
   - name: NAME
     displayName: Name
@@ -84,9 +46,62 @@ parameters:
     description: Path for alternate Dockerfile to use for build
     value: Dockerfile
   - name: NAMESPACE
-    description: Target namespace reference (i.e. '354028-tools')
+    description: Target namespace reference (i.e. '3cd915-tools')
     displayName: Namespace
     required: true
     value: 3cd915-tools
-labels:
-  template: build-pod-template
+objects:
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        build: "${NAME}"
+      name: "${NAME}"
+      namespace: ${NAMESPACE}
+
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        build: "${NAME}"
+        type: image
+      name: "${NAME}"
+      namespace: ${NAMESPACE}
+    spec:
+      nodeSelector:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${NAME}:${SLAVE_IMAGE_TAG}"
+      postCommit: {}
+      resources: {}
+      runPolicy: Serial
+      source:
+        type: Git
+        contextDir: "${SOURCE_CONTEXT_DIR}"
+        git:
+          ref: "${SOURCE_REPOSITORY_REF}"
+          uri: "${SOURCE_REPOSITORY_URL}"
+        secrets:
+          - secret:
+              name: platform-services-controlled-etc-pki-entitlement
+            destinationDir: etc-pki-entitlement
+        configMaps:
+        - configMap:
+            name: platform-services-controlled-rhsm-conf
+          destinationDir: rhsm-conf
+        - configMap:
+            name: platform-services-controlled-rhsm-ca
+          destinationDir: rhsm-ca
+      strategy:
+        dockerStrategy:
+          imageOptimizationPolicy: SkipLayers
+          dockerfilePath: "${DOCKERFILE_PATH}"
+          from:
+            kind: DockerImage
+            name: "${BUILDER_IMAGE_NAME}"
+            imagePullPolicy: Always
+        type: Docker
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange

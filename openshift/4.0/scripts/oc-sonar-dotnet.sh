@@ -60,6 +60,7 @@ CMD_SONAR_BEGIN="dotnet sonarscanner begin \
 
 # Build & Test
 #
+CMD_RESTORE="dotnet restore ${BACKEND_DIR}"
 CMD_BUILD="dotnet build ${BACKEND_DIR}"
 
 test() {
@@ -80,6 +81,7 @@ CMD_SONAR_END="dotnet sonarscanner end ${SONAR_TOKEN:+" -d:sonar.login=${SONAR_T
 #
 if [ "${APPLY}" ]; then
   eval "${CMD_SONAR_BEGIN}"
+  eval "${CMD_RESTORE}"
   eval "${CMD_BUILD}"
   test
   eval "${CMD_SONAR_END}"

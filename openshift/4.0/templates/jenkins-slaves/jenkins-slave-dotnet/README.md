@@ -15,14 +15,14 @@ For local running and experimentation run `docker run -i -t jenkins-slave-dotnet
 ## Build in OpenShift
 
 ```bash
-oc process -f jenkins-slave-generic-template.yaml \
+oc process -f jenkins-slave.yaml \
     -p NAME=jenkins-slave-dotnet \
     -p BUILDER_IMAGE_NAME=registry.redhat.io/dotnet/dotnet-31-jenkins-agent-rhel7 \
     -p SOURCE_CONTEXT_DIR=openshift/4.0/templates/jenkins-slaves/jenkins-slave-dotnet \
     | oc apply -f -
 ```
 
-For all params see the list in the `../jenkins-slave-generic-template.yaml` or run `oc process --parameters -f ../jenkins-slave-generic-template.yaml`.
+For all params see the list in the `../jenkins-slave.yaml` or run `oc process --parameters -f ../jenkins-slave.yaml`.
 
 ## Jenkins
 
