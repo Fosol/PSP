@@ -176,55 +176,55 @@ pipeline {
     }
 
 
-    // stage('Tests') {
-      // when {
-      //   expression { new Boolean(env.SKIP_BUILD) == false }
-      // }
-      // options { timeout(time: 20, unit: 'MINUTES') }
-      // failFast true
-      // parallel {
-      //   stage('Test Frontend') {
-      //     agent { label 'jenkins-slave-npm' }
-      //     steps {
-      //       script {
-      //         // pull code
-      //         checkout scm
+    stage('Tests') {
+      when {
+        expression { new Boolean(env.SKIP_BUILD) == false }
+      }
+      options { timeout(time: 20, unit: 'MINUTES') }
+      failFast true
+      parallel {
+        stage('Test Frontend') {
+          agent { label 'jenkins-slave-npm' }
+          steps {
+            script {
+              // pull code
+              checkout scm
 
-      //         echo 'Preparing the report for the publishing ...'
-      //         unstash name: 'zap'
+              echo 'Preparing the report for the publishing ...'
+              unstash name: 'zap'
 
-      //         commonPipeline.runFrontendTests()
+              commonPipeline.runFrontendTests()
 
-      //         dir(DEVOPS_DIRECTORY) {
-      //           sh "ZAP_REPORT=${WORKSPACE}/zap-output/zap-report.xml HTML_ZAP_REPORT=${WORKSPACE}/zap-output/zap-report.html ./player.sh scan ${OC_JOB_NAME} -apply"
-      //         }
-      //         echo 'Frontend lint checks and tests passed'
-      //       }
-      //     }
-      //     post {
-      //       failure {
-      //         error '*** Frontend lint checks and tests failed ***'
-      //       }
-      //     }
-      //   }
-      //   stage('Test Backend') {
-      //     agent { label 'jenkins-slave-dotnet' }
-      //     steps {
-      //       script {
-      //         dir(DEVOPS_DIRECTORY) {
-      //           sh "./player.sh scan-dotnet ${OC_JOB_NAME} -apply"
-      //         }
-      //         echo 'Backend tests passed'
-      //       }
-      //     }
-      //     post {
-      //       failure {
-      //         error '*** Backend tests failed ***'
-      //       }
-      //     }
-      //   }
-      // }
-    // }
+              dir(DEVOPS_DIRECTORY) {
+                sh "ZAP_REPORT=${WORKSPACE}/zap-output/zap-report.xml HTML_ZAP_REPORT=${WORKSPACE}/zap-output/zap-report.html ./player.sh scan ${OC_JOB_NAME} -apply"
+              }
+              echo 'Frontend lint checks and tests passed'
+            }
+          }
+          post {
+            failure {
+              error '*** Frontend lint checks and tests failed ***'
+            }
+          }
+        }
+        stage('Test Backend') {
+          agent { label 'jenkins-slave-dotnet' }
+          steps {
+            script {
+              dir(DEVOPS_DIRECTORY) {
+                sh "./player.sh scan-dotnet ${OC_JOB_NAME} -apply"
+              }
+              echo 'Backend tests passed'
+            }
+          }
+          post {
+            failure {
+              error '*** Backend tests failed ***'
+            }
+          }
+        }
+      }
+    }
 
     stage('Build') {
       when {
