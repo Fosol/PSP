@@ -1,4 +1,4 @@
-FROM image-registry.apps.silver.devops.gov.bc.ca/3cd915-tools/jenkins-slave-rhel7-net5
+FROM image-registry.apps.silver.devops.gov.bc.ca/3cd915-tools/jenkins-slave-centos-net5
 
 LABEL \
   io.k8s.display-name="Jenkins Agent .NET 5.0" \
