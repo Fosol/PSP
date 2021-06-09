@@ -13,6 +13,6 @@ USER 0
 RUN dotnet tool install --global dotnet-sonarscanner --version ${SONAR_VERSION} && \
   dotnet tool install --global coverlet.console --version ${COVERLET_VERSION}
 
-ENV PATH=$PATH:$HOME/.dotnet/tools
+ENV PATH=$PATH:/home/jenkins/.dotnet/tools
 
 USER 1001
